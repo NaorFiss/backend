@@ -17,115 +17,139 @@ async function query(filterBy = {}) {
     const criteria = _buildCriteria(filterBy)
     try {
         const collection = await dbService.getCollection('user')
-        var users = await collection.find(criteria).toArray()
-        users = users.map(user => {
-            delete user.password
-            user.createdAt = ObjectId(user._id).getTimestamp()
-            // Returning fake fresh data
-            // user.createdAt = Date.now() - (1000 * 60 * 60 * 24 * 3) // 3 days ago
-            return user
-        })
-        return users
-    } catch (err) {
-        logger.error('cannot find users', err)
-        throw err
+        // var users = await collection.find(criteria).toArray()
+        try {
+            const criteria = _buildCriteria(filterBy)
+            const collection = await dbService.getCollection('user')
+            // const reviews = await collection.find(criteria).toArray()
+            var users = await collection.aggregate([
+                {
+                    $match: criteria
+                },
+                {
+                    $lookup:
+                    {
+                        localField: '_id',
+                        from: 'gig',
+                        foreignField: 'owner._id',
+                        as: 'asSaylerGigs'
+                    }
+                },
+                {
+                    $unwind: '$asSaylerGigs'
+                }
+
+            ]).toArray()
+            users = users.map(user => {
+                user.asSaylerGigs = user.asSaylerGigs.map(gig => {
+                    gig = { _id: gig._id, title: gig.title, price: gig.price.basic }
+                    return gig
+                })
+                delete user.password
+                user.createdAt = ObjectId(user._id).getTimestamp()
+                return user
+            })
+            return users
+        } catch (err) {
+            logger.error('cannot find users', err)
+            throw err
+        }
     }
-}
 
 
 async function getById(userId) {
-    try {
-        const collection = await dbService.getCollection('user')
-        const user = await collection.findOne({ _id: ObjectId(userId) })
-        delete user.password
+        try {
+            const collection = await dbService.getCollection('user')
+            const user = await collection.findOne({ _id: ObjectId(userId) })
+            delete user.password
 
-        user.givenReviews = await reviewService.query({ byUserId: ObjectId(user._id) })
-        user.givenReviews = user.givenReviews.map(review => {
-            delete review.byUser
-            return review
-        })
+            user.givenReviews = await reviewService.query({ byUserId: ObjectId(user._id) })
+            user.givenReviews = user.givenReviews.map(review => {
+                delete review.byUser
+                return review
+            })
 
-        return user
-    } catch (err) {
-        logger.error(`while finding user by id: ${userId}`, err)
-        throw err
-    }
-}
-async function getByUsername(username) {
-    try {
-        const collection = await dbService.getCollection('user')
-        const user = await collection.findOne({ username })
-        return user
-    } catch (err) {
-        logger.error(`while finding user by username: ${username}`, err)
-        throw err
-    }
-}
-
-async function remove(userId) {
-    try {
-        const collection = await dbService.getCollection('user')
-        await collection.deleteOne({ _id: ObjectId(userId) })
-    } catch (err) {
-        logger.error(`cannot remove user ${userId}`, err)
-        throw err
-    }
-}
-
-async function update(user) {
-    try {
-        // peek only updatable properties
-        const userToSave = {
-            _id: ObjectId(user._id), // needed for the returnd obj
-            fullname: user.fullname,
-            score: user.score,
+            return user
+        } catch (err) {
+            logger.error(`while finding user by id: ${userId}`, err)
+            throw err
         }
-        const collection = await dbService.getCollection('user')
-        await collection.updateOne({ _id: userToSave._id }, { $set: userToSave })
-        return userToSave
-    } catch (err) {
-        logger.error(`cannot update user ${user._id}`, err)
-        throw err
     }
-}
-
-async function add(user) {
-    try {
-        // peek only updatable fields!
-        const userToAdd = {
-            username: user.username,
-            password: user.password,
-            fullname: user.fullname,
-            imgUrl: user.imgUrl,
-            score: 100
+    async function getByUsername(username) {
+        try {
+            const collection = await dbService.getCollection('user')
+            const user = await collection.findOne({ username })
+            return user
+        } catch (err) {
+            logger.error(`while finding user by username: ${username}`, err)
+            throw err
         }
-        const collection = await dbService.getCollection('user')
-        await collection.insertOne(userToAdd)
-        return userToAdd
-    } catch (err) {
-        logger.error('cannot insert user', err)
-        throw err
     }
-}
 
-function _buildCriteria(filterBy) {
-    const criteria = {}
-    if (filterBy.txt) {
-        const txtCriteria = { $regex: filterBy.txt, $options: 'i' }
-        criteria.$or = [
-            {
-                username: txtCriteria
-            },
-            {
-                fullname: txtCriteria
+    async function remove(userId) {
+        try {
+            const collection = await dbService.getCollection('user')
+            await collection.deleteOne({ _id: ObjectId(userId) })
+        } catch (err) {
+            logger.error(`cannot remove user ${userId}`, err)
+            throw err
+        }
+    }
+
+    async function update(user) {
+        try {
+            // peek only updatable properties
+            const userToSave = {
+                _id: ObjectId(user._id), // needed for the returnd obj
+                fullname: user.fullname,
+                score: user.score,
             }
-        ]
+            const collection = await dbService.getCollection('user')
+            await collection.updateOne({ _id: userToSave._id }, { $set: userToSave })
+            return userToSave
+        } catch (err) {
+            logger.error(`cannot update user ${user._id}`, err)
+            throw err
+        }
     }
-    if (filterBy.minBalance) {
-        criteria.score = { $gte: filterBy.minBalance }
+
+    async function add(user) {
+        try {
+            // peek only updatable fields!
+            const userToAdd = {
+                username: user.username,
+                password: user.password,
+                fullname: user.fullname,
+                imgUrl: user.imgUrl,
+                score: 100
+            }
+            const collection = await dbService.getCollection('user')
+            await collection.insertOne(userToAdd)
+            return userToAdd
+        } catch (err) {
+            logger.error('cannot insert user', err)
+            throw err
+        }
     }
-    return criteria
-}
+
+    function _buildCriteria(filterBy) {
+        const criteria = {}
+        if (filterBy.txt) {
+            const txtCriteria = { $regex: filterBy.txt, $options: 'i' }
+            criteria.$or = [
+                {
+                    username: txtCriteria
+                },
+                {
+                    fullname: txtCriteria
+                }
+            ]
+        }
+        if (filterBy.minBalance) {
+            criteria.score = { $gte: filterBy.minBalance }
+        }
+        return criteria
+    }
 
 
 
