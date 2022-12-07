@@ -1,0 +1,18 @@
+{
+    "seller": {
+        "_id": "638f9e184c12c7b025dc313e"
+    },
+    "gig": {
+        "_id": "638f7f744c12c7b025bcd71b",
+        "price": 40,
+        "title": "I will build an app, so click here and start apping your special app now! hurry hurry hurry",
+        "img": "./src/imgs/gig-img/gig2/1.jpg"
+    },
+    "_id": "ku3NKd",
+    "buyer": {
+        "_id": "638f9e184c12c7b025dc313d",
+        "fullname": "itzik"
+    },
+    "createdAt": "Tue Dec 06 2022",
+    "status": "pending"
+}

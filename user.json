@@ -1,0 +1,107 @@
+[
+    {
+        "fullname": "itzik",
+        "imgUrl": "./src/imgs/user-img/itzik.jpg",
+        "username": "itzik",
+        "password": "123",
+        "level": "level 1",
+        "isAdmin": true,
+        "rate": 4.2,
+        "gigs": [
+            {
+                "_id": "g1",
+                "title": "I will design your logo"
+            },
+            {
+                "_id": "g4",
+                "title": "I will grow instagram marketing instagram promotion to get targeted instagram followers "
+            }
+        ],
+        "reviews": [
+            {
+                "id": "r1",
+                "gig": {
+                    "_id": "g1",
+                    "title": "I will design your logo"
+                },
+                "txt": "Very kind and works fast",
+                "rate": 4,
+                "by": {
+                    "_id": "2",
+                    "fullname": "naor",
+                    "imgUrl": "./src/imgs/user-img/Naor-Fiss.jpeg"
+                }
+            }
+        ]
+    },
+    {
+        "fullname": "naor",
+        "imgUrl": "./src/imgs/user-img/Naor-Fiss.jpeg",
+        "username": "naor",
+        "password": "123",
+        "level": "level 2",
+        "isAdmin": true,
+        "rate": 4.8,
+        "gigs": [
+            {
+                "_id": "g2",
+                "title": "I will build an app"
+            },
+            {
+                "_id": "g5",
+                "title": "I will  UX and marketing content for your website and apps"
+            }
+        ],
+        "reviews": [
+            {
+                "id": "r2",
+                "gig": {
+                    "_id": "g2",
+                    "title": "I will build an app"
+                },
+                "txt": "Very kind",
+                "rate": 5,
+                "by": {
+                    "_id": "3",
+                    "fullname": "shachar",
+                    "imgUrl": "./src/imgs/user-img/shacar.jpg"
+                }
+            }
+        ]
+    },
+    {
+        "fullname": "shachar",
+        "imgUrl": "./src/imgs/user-img/shacar.jpg",
+        "username": "shachar",
+        "password": "123",
+        "level": "Top Rated",
+        "isAdmin": true,
+        "rate": 4.8,
+        "gigs": [
+            {
+                "_id": "g3",
+                "title": "I will teach you english"
+            },
+            {
+                "_id": "g6",
+                "title": "I will write professional resume cover letter and linkedin"
+            }
+        ],
+        "reviews": [
+            {
+                "id": "r3",
+                "gig": {
+                    "_id": "g3",
+                    "title": "I will teach you english"
+                },
+                "txt": "kind and works ",
+                "rate": 5,
+                "by": {
+                    "_id": "1",
+                    "fullname": "itzik",
+                    "imgUrl": "./src/imgs/user-img/itzik.jpg"
+                }
+            }
+        ]
+    }
+]
